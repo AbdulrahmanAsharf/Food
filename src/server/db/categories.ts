@@ -1,7 +1,7 @@
 import { cache } from "@/lib/cache";
 import { db } from "@/lib/prisma";
 
-export const getcategories = cache(
+export const getCategories = cache(
   () => {
     const categories = db.category.findMany({
       orderBy: {
