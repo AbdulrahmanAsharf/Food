@@ -1,7 +1,7 @@
+import Image from 'next/image'
 import { buttonVariants } from '@/components/ui/button';
 import {  Routes } from '@/constants/enums';
 import { ArrowRightCircle } from 'lucide-react';
-
 import Link from 'next/link';
 import {useTranslations} from 'next-intl';
 function Hero() {
@@ -34,6 +34,16 @@ function Hero() {
               />
             </Link>
           </div>
+        </div>
+        <div className='relative hidden md:block'>
+          <Image
+            src='/assets/images/pizza.png'
+            alt='Pizza'
+            fill
+            className='object-contain'
+            loading='eager'
+            priority
+          />
         </div>
       </div>
     </section>

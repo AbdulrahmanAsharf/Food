@@ -1,10 +1,10 @@
-import { getcategories } from "@/server/db/categories";
+import { getCategories } from "@/server/db/categories";
 import { Newform } from "../_components/Form"
 
 
 
 async function page() {
-  const categories = await getcategories();
+  const categories = await getCategories();
   return (
     <main>
       <section className='section-gap'>

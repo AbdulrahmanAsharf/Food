@@ -2,7 +2,7 @@ import { Pages, Routes } from "@/constants/enums";
 import { getProduct, getProducts } from "@/server/db/products";
 import { redirect } from "next/navigation";
 import { Newform } from "../../_components/Form";
-import { getcategories } from "@/server/db/categories";
+import { getCategories } from "@/server/db/categories";
 
 
 
@@ -20,7 +20,7 @@ interface PageProps {
 async function EditProductPage({ params }: PageProps) {
   const { productId } = await params;
   const product = await getProduct(productId);
-  const categories = await getcategories();
+  const categories = await getCategories();
 
   if (!product) {
     redirect(`/${Routes.ADMIN}/${Pages.MENU_ITEMS}`);

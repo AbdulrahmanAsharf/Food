@@ -1,4 +1,4 @@
-import {getcategories  } from '@/server/db/categories'
+import {getCategories  } from '@/server/db/categories'
 import { getTranslations } from 'next-intl/server';
 import React from 'react'
 import CategoryItem from './_components/CategoryItem';
@@ -10,7 +10,7 @@ import  Categortyform  from './_components/Categortyform';
 
 async function page() {
     const noFound = await getTranslations("");
-    const categories = await getcategories ()
+    const categories = await getCategories ()
   return (
     <main>
         <section className='section-gap'>
