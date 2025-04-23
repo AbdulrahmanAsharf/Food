@@ -2,8 +2,8 @@ import { cache } from "@/lib/cache";
 import { db } from "@/lib/prisma";
 
 export const getCategories = cache(
-  async () => {
-    const categories =await db.category.findMany({
+  () => {
+    const categories = db.category.findMany({
       orderBy: {
         order: "asc",
       },

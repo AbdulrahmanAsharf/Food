@@ -1,11 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -13,108 +8,54 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-model User {
-  id            String         @id @default(uuid())
-  email         String         @unique
-  password      String
-  name          String
-  image         String?
-  phone         String?
-  streetAddress String?
-  postalCode    String?
-  city          String?
-  country       String?
-  role          UserRole       @default(USER)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  orders        OrderProduct[]
-  accounts      Account[]
-  sessions      Session[]
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-}
-
-model VerificationRequest {
-  id         String   @id @default(cuid())
-  identifier String
-  token      String   @unique
-  expires    DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@unique([identifier, token])
-}
-
-model Account {
-  id                String  @id @default(cuid())
+model accounts {
+  id                String  @id
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  users             users   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@index([userId])
 }
 
-model Product {
-  id          String         @id @default(cuid())
-  name        String
-  description String
-  image       String
-  order       Int            @default(autoincrement())
-  basePrice   Float
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  sizes       Size[]
-  extras      Extra[]
-  orders      OrderProduct[]
-  category    Category       @relation(fields: [categoryId], references: [id])
-  categoryId  String
+model categories {
+  id       String     @id
+  name     String
+  order    Int        @default(autoincrement())
+  products products[]
 }
 
-model Size {
-  id        String       @id @default(cuid())
-  name      ProductSizes
-  price     Float
-  product   Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
-  productId String
-}
-
-model Extra {
-  id        String           @id @default(cuid())
+model extras {
+  id        String           @id
   name      ExtraIngredients
   price     Float
-  product   Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String
+  products  products         @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
-model Category {
-  id       String    @id @default(uuid())
-  name     String
-  order    Int       @default(autoincrement())
-  products Product[]
+model orderproducts {
+  id        String   @id
+  quantity  Int
+  orderId   String
+  userId    String?
+  productId String
+  orders    orders   @relation(fields: [orderId], references: [id])
+  products  products @relation(fields: [productId], references: [id])
+  users     users?   @relation(fields: [userId], references: [id])
 }
 
-model Order {
-  id            String         @id @default(uuid())
-  paid          Boolean        @default(false)
+model orders {
+  id            String          @id
+  paid          Boolean         @default(false)
   subTotal      Float
   deliveryFee   Float
   totalPrice    Float
@@ -124,21 +65,73 @@ model Order {
   postalCode    String
   city          String
   country       String
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  products      OrderProduct[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime
+  orderproducts orderproducts[]
 }
 
-model OrderProduct {
-  id       String @id @default(cuid())
-  quantity Int
+model products {
+  id            String          @id
+  name          String
+  description   String
+  image         String
+  order         Int             @default(autoincrement())
+  basePrice     Float
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime
+  categoryId    String
+  extras        extras[]
+  orderproducts orderproducts[]
+  categories    categories      @relation(fields: [categoryId], references: [id])
+  sizes         sizes[]
+}
 
-  order     Order   @relation(fields: [orderId], references: [id])
-  orderId   String
-  user      User?   @relation(fields: [userId], references: [id])
-  userId    String?
-  product   Product @relation(fields: [productId], references: [id])
+model session {
+  id           String   @id
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  users        users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model sizes {
+  id        String       @id
+  name      ProductSizes
+  price     Float
   productId String
+  products  products     @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model users {
+  id            String          @id
+  email         String          @unique
+  password      String
+  name          String
+  image         String?
+  phone         String?
+  streetAddress String?
+  postalCode    String?
+  city          String?
+  country       String?
+  role          UserRole        @default(USER)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime
+  accounts      accounts[]
+  orderproducts orderproducts[]
+  session       session[]
+}
+
+model verificationrequests {
+  id         String   @id
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+
+  @@unique([identifier, token])
 }
 
 enum ProductSizes {

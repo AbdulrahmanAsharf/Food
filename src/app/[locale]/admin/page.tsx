@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth"; 
 import { UserRole } from "@prisma/client";
-import { getTranslations } from "next-intl/server";
 import { EditUserForm } from "@/components/edit-user-form";
 
 
@@ -17,15 +16,11 @@ async function AdminPage() {
     redirect(`/${Routes.PROFILE}`);
   }
 
-  const t = await getTranslations("admin.tabs");
 
   return (
     <main>
       <section className="section-gap">
         <div className="container">
-          <h1 className="text-primary text-center font-bold text-4xl italic mb-10">
-            {t("profile")}
-          </h1>
           <EditUserForm user={session?.user} />
         </div>
       </section>

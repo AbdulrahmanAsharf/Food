@@ -2,8 +2,8 @@ import { cache } from "@/lib/cache";
 import { db } from "@/lib/prisma";
 
 export const getProductsByCategory = cache(
-  async () => {
-    const products = await db.category.findMany({
+  () => {
+    const products = db.category.findMany({
       include: {
         products: {
           include: {
@@ -19,8 +19,8 @@ export const getProductsByCategory = cache(
   { revalidate: 3600 }
 );
 export const getBestSellers = cache(
-  async (limit?: number) => {
-    const bestSellers = await db.product.findMany({
+  (limit?: number | undefined) => {
+    const bestSellers = db.product.findMany({
       where: {
         orders: {
           some: {},
@@ -44,8 +44,8 @@ export const getBestSellers = cache(
 );
 
 export const getProducts = cache(
-  async () => {
-    const products = await db.product.findMany({
+  () => {
+    const products = db.product.findMany({
       orderBy: {
         order: "asc",
       },
@@ -56,21 +56,19 @@ export const getProducts = cache(
   { revalidate: 3600 }
 );
 
-
-export const getProduct = (id: string) =>
-  cache(
-    async () => {
-      const product = await db.product.findUnique({
-        where: {
-          id,
-        },
-        include: {
-          sizes: true,
-          extras: true,
-        },
-      });
-      return product;
-    },
-    [`product-${id}`],
-    { revalidate: 3600 }
-  )();
+export const getProduct = cache(
+  (id: string) => {
+    const product = db.product.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        sizes: true,
+        extras: true,
+      },
+    });
+    return product;
+  },
+  [`product-${crypto.randomUUID()}`],
+  { revalidate: 3600 }
+);

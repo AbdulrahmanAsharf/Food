@@ -51,6 +51,7 @@ export function SigninForm() {
         email: values.email,
         password: values.password,
         redirect: false, 
+        callbackUrl: `/${Routes.PROFILE}`
       });
       if (res?.error) {
         const validationError = JSON.parse(res?.error).validationError;

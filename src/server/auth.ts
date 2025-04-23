@@ -1,11 +1,13 @@
 import { Environments, Pages, Routes } from "@/constants/enums";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { db } from "@/lib/prisma";
 import { DefaultSession, type NextAuthOptions } from "next-auth";
 import { login } from "./_actions/auth";
 import { User, UserRole } from "@prisma/client";
 import { JWT } from "next-auth/jwt";
+import { db } from "@/lib/prisma";
+
+
 
 
 declare module "next-auth" {

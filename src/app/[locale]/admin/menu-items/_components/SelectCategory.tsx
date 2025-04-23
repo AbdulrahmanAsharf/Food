@@ -44,7 +44,7 @@ export default function SelectCategory({
             locale === Languages.ARABIC ? "flex-row-reverse" : "flex-row"
           }`}
         >
-          <SelectValue>{currentItem?.name || translation("category.placeholder")}</SelectValue>
+          <SelectValue>{currentItem?.name}</SelectValue>
         </SelectTrigger>
         <SelectContent className="bg-transparent border-none z-50 bg-gray-100">
           <SelectGroup className="bg-background text-accent z-50">

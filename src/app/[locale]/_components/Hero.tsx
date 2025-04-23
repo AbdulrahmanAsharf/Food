@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image'
 import { buttonVariants } from '@/components/ui/button';
 import {  Routes } from '@/constants/enums';
@@ -36,14 +38,14 @@ function Hero() {
           </div>
         </div>
         <div className='relative hidden md:block'>
-          <Image
-            src='/assets/images/pizza.png'
-            alt='Pizza'
-            fill
-            className='object-contain'
-            loading='eager'
-            priority
-          />
+        <Image
+          src="/images/pizza.jpg"
+          alt="Pizza"
+          width={500}
+          height={500}
+          className="object-contain"
+          loading="eager"
+        />
         </div>
       </div>
     </section>
