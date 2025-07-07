@@ -1,13 +1,13 @@
 import About from "@/components/about";
 import Contact from "@/components/contact";
-import Menu from "@/components/menu";
-import Section from "@/components/section";
+import BestSellers from "./_components/BestSellers";
+import Hero from "./_components/Hero";
 
 export default function Home() {
   return (
     <div >
-      <Section />
-      <Menu />
+      <Hero />
+      <BestSellers />
       <About />
       <Contact />
     </div>
