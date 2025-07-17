@@ -3,7 +3,8 @@ import { Roboto } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-
+import {ClerkProvider} from '@clerk/nextjs'
+import { Toaster } from "sonner";
 
 
 
@@ -19,14 +20,16 @@ export const metadata: Metadata = {
 
 export default function RootLayout({children,}: Readonly<{children: React.ReactNode;}>) {
   return (
+    <ClerkProvider>
     <html lang="en">
       <body
-        className={`${roboto.className} antialiased`}
-      >
+        className={`${roboto.className} antialiased`}>
+        <Toaster richColors position="top-center" />
         <Header />
         {children}
         <Footer />
       </body>
     </html>
+    </ClerkProvider>
   );
 }

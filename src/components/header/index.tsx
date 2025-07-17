@@ -2,11 +2,14 @@
 
 import { ShoppingCart} from 'lucide-react'
 import Link from 'next/link'
-import { Button } from '../ui/button'
 import SheetDemo from './menu'
-
+import { getCartQuantity } from '@/lib/cart';
+import { useCartStore } from '@/store/cart-store'
+import AuthControls from './AuthControls'
 
 export default function Header() {
+  const cart = useCartStore((s) => s.items); 
+  const cartQuantity = getCartQuantity(cart); 
   return (
     <header className="container my-3 ">
       <div className="mx-auto flex h-16 items-center justify-between ">
@@ -24,14 +27,12 @@ export default function Header() {
           </nav>
         </div>
         <div className="flex items-center gap-4 " >
-                <Link href="/">
-                  <Button size="lg" className="h-10 px-6  rounded-full text-sm font-semibold">
-                    Login
-                  </Button>
-                </Link>
+                <AuthControls />
                 <Link href="/cart" className='relative pt-3 '>
                   <ShoppingCart/>
-                  <span className='absolute top-2 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full'>7</span>
+                  <span className='absolute top-2 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full'>
+                  {cartQuantity}
+                  </span>
                 </Link>
                 <SheetDemo />
         </div>
