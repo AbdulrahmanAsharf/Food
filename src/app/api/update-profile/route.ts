@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { name, phone, city, country, image, role } = body;
+    const { name, phone, city, country, image, role , streetAddress, postalCode} = body;
 
     // 🟡 نجيب بيانات المستخدم الحالي من الداتا بيز
     const currentUser = await db.user.findUnique({
@@ -33,6 +33,8 @@ export async function POST(req: Request) {
         city,
         country,
         image,
+        streetAddress,
+        postalCode,
         // ✅ فقط الأدمن يقدر يغير role
         ...(isAdmin && role ? { role } : {}),
       },
