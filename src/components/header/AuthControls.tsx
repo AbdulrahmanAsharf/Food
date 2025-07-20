@@ -2,15 +2,36 @@
 
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { useAuth, useClerk, useUser } from '@clerk/nextjs';
+import { useAuth, useClerk } from '@clerk/nextjs';
 import { toast } from 'sonner';
+import { useEffect, useState } from 'react';
 
 export default function AuthControls() {
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isSignedIn, getToken } = useAuth();
   const { signOut } = useClerk();
-  const { user } = useUser();
+  const [role, setRole] = useState<string | null>(null);
 
-  if (!isLoaded) return;
+  useEffect(() => {
+    const fetchRole = async () => {
+      try {
+        const token = await getToken(); // نضمن إن فيه جلسة فعلًا
+        if (!token) return;
+
+        const res = await fetch('/api/get-role');
+        if (!res.ok) throw new Error('Failed to fetch role');
+
+        const data = await res.json();
+        setRole(data.role);
+      } catch (error) {
+        console.error('Error fetching role:', error);
+        toast.error('تعذر جلب بيانات المستخدم');
+      }
+    };
+
+    if (isSignedIn) {
+      fetchRole();
+    }
+  }, [isSignedIn, getToken]);
 
   const handleLogout = async () => {
     await signOut();
@@ -18,37 +39,9 @@ export default function AuthControls() {
     window.location.href = '/';
   };
 
-  const role = user?.publicMetadata?.role;
-
-  // تحديد الرابط والنص حسب الدور
-  let profileButton = null;
-
-  if (isSignedIn) {
-    if (role === 'user') {
-      profileButton = (
-        <Link href="/profile">
-          <Button className="mr-2">Profile</Button>
-        </Link>
-      );
-    } else if (role === 'admin') {
-      profileButton = (
-        <Link href="/admin">
-          <Button className="mr-2">Admin</Button>
-        </Link>
-      );
-    }
-  }
-
-  return (
-    <>
-      {isSignedIn ? (
-        <>
-          {profileButton}
-          <Button variant="outline" onClick={handleLogout}>
-            Logout
-          </Button>
-        </>
-      ) : (
+  const renderButtons = () => {
+    if (!isSignedIn) {
+      return (
         <>
           <Link href="/sign-in">
             <Button className="mr-2">Login</Button>
@@ -57,7 +50,22 @@ export default function AuthControls() {
             <Button variant="outline">Sign Up</Button>
           </Link>
         </>
-      )}
-    </>
-  );
+      );
+    }
+
+    return (
+      <>
+        {role && (
+          <Link href={role === 'ADMIN' ? '/admin' : '/profile'}>
+            <Button className="mr-2">{role === 'ADMIN' ? 'Admin' : 'Profile'}</Button>
+          </Link>
+        )}
+        <Button variant="outline" onClick={handleLogout}>
+          Logout
+        </Button>
+      </>
+    );
+  };
+
+  return <>{renderButtons()}</>;
 }

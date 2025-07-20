@@ -2,25 +2,14 @@ import { z } from 'zod';
 
 export const signUpSchema = z
   .object({
-    email: z
-      .string()
-      .refine((val) => z.string().email().safeParse(val).success, {
-        message: 'Invalid email address',
-      }), // ✅ شلنا الفاصلة الزائدة هنا
-    username: z
-      .string()
-      .min(3, { message: 'Username must be at least 3 characters' })
-      .regex(/^[a-zA-Z0-9_-]+$/, {
-        message: 'Only letters, numbers, - and _ allowed',
-      }),
-    password: z.string().min(6, {
-      message: 'Password must be at least 6 characters',
-    }),
+    email: z.string().email({ message: 'بريد غير صالح' }),
+    username: z.string().min(3, { message: 'اسم المستخدم قصير' }),
+    password: z.string().min(6, { message: 'كلمة المرور قصيرة' }),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    path: ['confirmPassword'],
-    message: 'Passwords do not match',
+    message: 'كلمة المرور غير متطابقة',
+    path: ['confirmPassword'], // حدد مكان الخطأ
   });
 
 export const signInSchema = z.object({

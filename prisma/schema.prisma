@@ -12,11 +12,12 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 model User {
-  id            String         @id @default(uuid())
-  email         String         @unique
-  password      String
-  name          String
+  id       String  @id @default(cuid())
+  clerkId  String  @unique
+  name     String?    // ✅ خليه اختياري
+  email    String? @unique // ✅ أضف حقل الإيميل
   image         String?
   phone         String?
   streetAddress String?
@@ -27,6 +28,11 @@ model User {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   orders        OrderProduct[]
+}
+
+enum UserRole {
+  USER
+  ADMIN
 }
 
 
@@ -112,7 +118,3 @@ enum ExtraIngredients {
   PEPPER
 }
 
-enum UserRole {
-  USER
-  ADMIN
-}

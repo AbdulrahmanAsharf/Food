@@ -1,23 +1,38 @@
 // src/app/api/get-role/route.ts
-import { getAuth } from '@clerk/nextjs/server';
-import { clerkClient } from '@clerk/clerk-sdk-node';
-import { NextResponse, NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
+import { getAuth } from "@clerk/nextjs/server";
+import { db } from "@/lib/prisma";
 
 export async function GET(req: NextRequest) {
-  const { userId } = getAuth(req);
-
-  if (!userId) {
-    console.log('❌ No userId found');
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
   try {
-    const user = await clerkClient.users.getUser(userId);
-    const role = user.publicMetadata?.role || 'user';
+    const { userId } = getAuth(req); // ✅ هنا نستخدم NextRequest
 
-    return NextResponse.json({ role });
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const user = await db.user.findUnique({
+      where: { clerkId: userId }, // ✅ تأكد أن هذا الحقل موجود في Prisma
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({
+  role: user.role,
+  name: user.name,
+  phone: user.phone,
+  streetAddress: user.streetAddress,
+  postalCode: user.postalCode,
+  city: user.city,
+  country: user.country,
+});
+
   } catch (error) {
-    console.error('❌ Error fetching user:', error);
-    return NextResponse.json({ error: 'Failed to get user role' }, { status: 500 });
+    console.error("❌ get-role error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+
+

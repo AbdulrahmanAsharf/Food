@@ -1,51 +1,39 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// src/app/api/set-role/route.ts
+// ❌ هذا الاستيراد غير صحيح:
+// import { Clerk } from '@clerk/backend';
+
+// ✅ استخدم الاستيراد الصحيح من @clerk/clerk-sdk-node:
 import { clerkClient } from '@clerk/clerk-sdk-node';
-import { NextRequest, NextResponse } from 'next/server';
+import { db } from '@/lib/prisma';
+import { NextResponse } from 'next/server';
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const contentType = req.headers.get('content-type');
-    console.log('[set-role] contentType:', contentType);
+    const { userId } = await req.json();
 
-    if (!contentType?.includes('application/json')) {
-      return NextResponse.json({ error: 'Invalid Content-Type' }, { status: 400 });
-    }
-
-    const body = await req.json();
-    console.log('[set-role] body:', body);
-
-    const { userId } = body;
-    if (!userId || typeof userId !== 'string') {
-      return NextResponse.json({ error: 'Missing or invalid userId' }, { status: 400 });
-    }
-
-    console.log('✅ Incoming userId:', userId);
-
-    // ✅ جلب بيانات المستخدم
     const user = await clerkClient.users.getUser(userId);
-    const email = user.emailAddresses[0]?.emailAddress;
-
-    console.log('[set-role] user email:', email);
-
-    if (!email) {
-      return NextResponse.json({ error: 'User email not found' }, { status: 400 });
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // ✅ حدد الدور
-    const role = email === 'admin@email.com' ? 'admin' : 'user';
-
-    // ✅ عدّل بيانات المستخدم
-    await clerkClient.users.updateUserMetadata(userId, {
-      publicMetadata: { role },
+    const existing = await db.user.findUnique({
+      where: { clerkId: userId },
     });
 
-    console.log(`[set-role] Role set to "${role}" for ${email}`);
+    if (!existing) {
+      await db.user.create({
+        data: {
+          clerkId: user.id,
+          email: user.emailAddresses[0].emailAddress,
+          name: user.username || user.firstName || 'User',
+          image: user.imageUrl,
+          role: 'USER',
+        },
+      });
+    }
 
-    // ✅ رجّع الاستجابة
-    return NextResponse.json({ success: true, role });
-  } catch (err: any) {
-    console.error('[set-role] caught error:', err);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('❌ Error setting role:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
