@@ -3,7 +3,8 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 const isPublicRoute = createRouteMatcher([
-  "/", "/contact" , "/menu", "/about","/dashboard", "/sign-in", "/sign-up", "/verify-email"
+  "/", "/contact", "/menu", "/about", "/sign-in", "/sign-up", "/verify-email", "/cart",
+  "/api/stripe/webhook" // ✅ إضافة هذا السطر
 ]);
 
 export default clerkMiddleware(async (authFn, req) => {
@@ -22,6 +23,6 @@ export default clerkMiddleware(async (authFn, req) => {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.png$|.*\\.jpg$|.*\\.jpeg$|.*\\.svg$|.*\\.webp$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.png$|.*\\.jpg$|.*\\.jpeg$|.*\\.svg$|.*\\.webp$|api/stripe/webhook).*)"
   ],
 };

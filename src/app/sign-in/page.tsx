@@ -2,94 +2,104 @@
 'use client';
 
 import { useSignIn, useAuth } from '@clerk/nextjs';
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { signInSchema } from '@/validations/auth';
-import { useRouter } from 'next/navigation';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+
+type Inputs = z.infer<typeof signInSchema>;
 
 export default function SignInPage() {
   const { isLoaded: authReady, isSignedIn } = useAuth();
   const { isLoaded: signInReady, signIn, setActive } = useSignIn();
   const router = useRouter();
 
-  const [form, setForm] = useState({ email: '', password: '' });
-  const [loading, setLoading] = useState(false);
+  const form = useForm<Inputs>({
+    resolver: zodResolver(signInSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    const validation = signInSchema.safeParse(form);
-    if (!validation.success) {
-      validation.error.issues.forEach(issue =>
-        toast.error(`❌ ${issue.message}`)
-      );
-      setLoading(false);
-      return;
-    }
-
+  const onSubmit = async (values: Inputs) => {
     if (!signInReady || !signIn || !setActive) {
-      toast.error('Authentication not ready');
-      setLoading(false);
+      toast.error('المصادقة غير جاهزة');
       return;
     }
 
     try {
       const res = await signIn.create({
-        identifier: form.email,
-        password: form.password,
+        identifier: values.email,
+        password: values.password,
       });
 
       if (res.status === 'complete') {
         await setActive({ session: res.createdSessionId });
-        toast.success('✅ Signed in');
-
-        // ✅ التوجيه مباشرة إلى /dashboard
+        toast.success('✅ تم تسجيل الدخول بنجاح');
         router.push('/dashboard');
       } else {
-        toast.error('Sign-in incomplete');
+        toast.error('لم يكتمل تسجيل الدخول');
       }
     } catch (err: any) {
-      toast.error(err?.errors?.[0]?.message || 'Something went wrong');
-    } finally {
-      setLoading(false);
+      toast.error(err?.errors?.[0]?.message || '❌ حدث خطأ ما');
     }
   };
 
   if (!authReady || !signInReady || isSignedIn) return null;
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-md mx-auto mt-20 space-y-4 p-6 border rounded"
-    >
-      <h2 className="text-xl font-bold text-center">🔐 Sign In</h2>
-      <input
-        name="email"
-        type="email"
-        placeholder="Email"
-        value={form.email}
-        onChange={handleChange}
-        className="w-full border rounded p-2"
-        required
-      />
-      <input
-        name="password"
-        type="password"
-        placeholder="Password"
-        value={form.password}
-        onChange={handleChange}
-        className="w-full border rounded p-2"
-        required
-      />
-      <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? 'Loading...' : 'Sign In'}
-      </Button>
-    </form>
+    <div className="max-w-sm mx-auto mt-10" dir="rtl">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <h2 className="text-xl font-bold text-center">🔐 تسجيل الدخول</h2>
+
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>البريد الإلكتروني</FormLabel>
+                <FormControl>
+                  <Input type="email" placeholder="example@email.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>كلمة المرور</FormLabel>
+                <FormControl>
+                  <Input type="password" placeholder="••••••••" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? 'جارٍ تسجيل الدخول...' : 'تسجيل الدخول'}
+          </Button>
+        </form>
+      </Form>
+    </div>
   );
 }

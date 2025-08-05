@@ -1,30 +1,26 @@
 // src/app/dashboard/page.tsx
-'use client';
+import { redirect } from 'next/navigation';
+import { auth } from '@clerk/nextjs/server';
+import { db } from '@/lib/prisma';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@clerk/nextjs';
+export default async function DashboardPage() {
+  const { userId } = await auth(); // ✅ await هنا مهم جدًا
 
-export default function DashboardPage() {
-  const { isSignedIn } = useAuth();
-  const router = useRouter();
+  if (!userId) {
+    redirect('/sign-in');
+  }
 
-  useEffect(() => {
-    const checkRole = async () => {
-      const res = await fetch('/api/get-role');
-      const data = await res.json();
+  const user = await db.user.findUnique({
+    where: { clerkId: userId },
+  });
 
-      if (data?.role === 'ADMIN') {
-        router.replace('/admin');
-      } else {
-        router.replace('/profile');
-      }
-    };
+  if (!user) {
+    redirect('/sign-in');
+  }
 
-    if (isSignedIn) {
-      checkRole();
-    }
-  }, [isSignedIn, router]);
+  if (user.role === 'ADMIN') {
+    redirect('/admin');
+  }
 
-  return <p className="text-center mt-20">🔄 Redirecting...</p>;
+  redirect('/profile');
 }

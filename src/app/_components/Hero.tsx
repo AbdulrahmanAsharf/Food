@@ -1,5 +1,6 @@
 
 import { buttonVariants } from '@/components/ui/button';
+
 import { ArrowRightCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -45,3 +46,4 @@ async function Hero() {
   );
 }
 export default Hero;
+

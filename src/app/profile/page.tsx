@@ -42,8 +42,10 @@ export default function ProfilePage() {
   return (
     <main className="max-w-xl mx-auto mt-10 p-6 border rounded-lg shadow-lg bg-white">
       <h1 className="text-primary text-center font-bold text-4xl italic mb-10">Profile</h1>
-      <ProfileForm defaultValues={defaultValues} userRole="USER" />
+      <ProfileForm defaultValues={defaultValues} userRole="USER" userId={user?.id || ''}/>
     </main>
   );
 }
 
+
+//

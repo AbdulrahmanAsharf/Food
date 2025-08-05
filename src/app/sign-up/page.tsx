@@ -2,117 +2,141 @@
 'use client';
 
 import { useSignUp } from '@clerk/nextjs';
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { signUpSchema } from '@/validations/auth';
-import { ZodError } from 'zod';
+import { Input } from '@/components/ui/input';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from '@/components/ui/form';
+
+const signUpSchema = z
+  .object({
+    email: z.string().email({ message: 'البريد الإلكتروني غير صالح' }),
+    password: z.string().min(6, { message: 'كلمة المرور يجب أن تكون 6 أحرف على الأقل' }),
+    confirmPassword: z.string(),
+    username: z.string().min(3, { message: 'اسم المستخدم يجب أن يكون 3 أحرف على الأقل' }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'كلمة المرور غير متطابقة',
+    path: ['confirmPassword'],
+  });
+
+type Inputs = z.infer<typeof signUpSchema>;
 
 export default function SignUpPage() {
   const { isLoaded, signUp } = useSignUp();
   const router = useRouter();
 
-  const [form, setForm] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    username: '',
+  const form = useForm<Inputs>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      confirmPassword: '',
+      username: '',
+    },
   });
 
-  const [loading, setLoading] = useState(false);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    const validation = signUpSchema.safeParse(form);
-    if (!validation.success) {
-      (validation.error as ZodError).issues.forEach((issue) =>
-        toast.error(`❌ ${issue.message}`)
-      );
-      setLoading(false);
-      return;
-    }
-
-    if (!isLoaded || !signUp) {
-      setLoading(false);
-      return;
-    }
+  const onSubmit = async (data: Inputs) => {
+    if (!isLoaded || !signUp) return;
 
     try {
-      const { email, password, username } = form;
+      const { email, password, username } = data;
 
-      const res = await signUp.create({ emailAddress: email, password, username });
+      const res = await signUp.create({
+        emailAddress: email,
+        password,
+        username,
+      });
 
       if (res.status !== 'complete') {
         await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
-        toast.success('✅ Check your email for verification');
+        toast.success('✅ من فضلك تحقق من بريدك الإلكتروني');
         router.push('/verify-email');
       }
     } catch (err: any) {
-      toast.error(err?.errors?.[0]?.message || '❌ Something went wrong');
-    } finally {
-      setLoading(false);
+      toast.error(err?.errors?.[0]?.message || 'حدث خطأ ما ❌');
     }
   };
 
   return (
-    <form
-      onSubmit={handleSignUp}
-      className="max-w-md mx-auto mt-20 space-y-4 p-6 border rounded"
-    >
-      <h2 className="text-xl font-bold text-center">Sign Up</h2>
+    <div className="max-w-md mx-auto mt-20 p-6 border rounded" dir="rtl">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <h2 className="text-xl font-bold text-center">📝 إنشاء حساب جديد</h2>
 
-      <input
-        name="email"
-        type="email"
-        placeholder="Email"
-        value={form.email}
-        onChange={handleChange}
-        className="w-full border rounded p-2"
-        required
-      />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>البريد الإلكتروني</FormLabel>
+                <FormControl>
+                  <Input type="email" placeholder="example@email.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-      <input
-        name="password"
-        type="password"
-        placeholder="Password"
-        value={form.password}
-        onChange={handleChange}
-        className="w-full border rounded p-2"
-        required
-      />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>كلمة المرور</FormLabel>
+                <FormControl>
+                  <Input type="password" placeholder="••••••••" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-      <input
-        name="confirmPassword"
-        type="password"
-        placeholder="Confirm Password"
-        value={form.confirmPassword}
-        onChange={handleChange}
-        className="w-full border rounded p-2"
-        required
-      />
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>تأكيد كلمة المرور</FormLabel>
+                <FormControl>
+                  <Input type="password" placeholder="••••••••" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-      <input
-        name="username"
-        type="text"
-        placeholder="Username"
-        value={form.username}
-        onChange={handleChange}
-        className="w-full border rounded p-2"
-        required
-      />
+          <FormField
+            control={form.control}
+            name="username"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>اسم المستخدم</FormLabel>
+                <FormControl>
+                  <Input type="text" placeholder="اسمك" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-      <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? 'Loading...' : 'Sign Up'}
-      </Button>
-    </form>
+          <div id="clerk-captcha" />
+
+          <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? 'جارٍ التسجيل...' : 'إنشاء حساب'}
+          </Button>
+        </form>
+      </Form>
+    </div>
   );
 }
-
-

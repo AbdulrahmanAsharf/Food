@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+'use client'
+
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { profileSchema, ProfileFormData } from '@/validations/profile';
@@ -11,6 +13,7 @@ import { useState } from 'react';
 interface Props {
   defaultValues: ProfileFormData;
   userRole: 'ADMIN' | 'USER';
+  userId: string; 
 }
 
 export function ProfileForm({ defaultValues, userRole }: Props) {

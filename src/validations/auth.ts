@@ -1,24 +1,21 @@
+// validations/auth.ts
+
 import { z } from 'zod';
 
 export const signUpSchema = z
   .object({
-    email: z.string().email({ message: 'بريد غير صالح' }),
-    username: z.string().min(3, { message: 'اسم المستخدم قصير' }),
-    password: z.string().min(6, { message: 'كلمة المرور قصيرة' }),
+    email: z.string().email({ message: 'البريد الإلكتروني غير صالح' }),
+    password: z.string().min(6, { message: 'كلمة المرور يجب أن تكون 6 أحرف على الأقل' }),
     confirmPassword: z.string(),
+    username: z.string().min(3, { message: 'اسم المستخدم يجب أن يكون 3 أحرف على الأقل' }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'كلمة المرور غير متطابقة',
-    path: ['confirmPassword'], // حدد مكان الخطأ
+    path: ['confirmPassword'],
   });
 
 export const signInSchema = z.object({
-  email: z
-    .string()
-    .refine((val) => z.string().email().safeParse(val).success, {
-      message: 'Invalid email address',
-    }),
-  password: z
-    .string()
-    .min(6, { message: 'Password must be at least 6 characters' }),
+  email: z.string().email({ message: 'البريد الإلكتروني غير صالح' }),
+  password: z.string().min(6, { message: 'كلمة المرور يجب أن تكون 6 أحرف على الأقل' }),
 });
+

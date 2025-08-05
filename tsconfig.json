@@ -13,9 +13,9 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "baseUrl": "./src", // ✅ مهم جداً لو نقلت كل حاجة داخل src
+    "baseUrl": "./src",
     "paths": {
-      "@/*": ["./*"]     // ✅ @/components/... تشير إلى src/components
+      "@/*": ["./*"]
     },
     "plugins": [
       {
@@ -23,6 +23,10 @@
       }
     ]
   },
-  "include": ["src", "next-env.d.ts", ".next/types/**/*.ts"],
+  "ts-node": {
+    "esm": true,
+    "transpileOnly": true
+  },
+  "include": ["src", "next-env.d.ts", ".next/types/**/*.ts", "types"],
   "exclude": ["node_modules"]
 }

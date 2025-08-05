@@ -1,27 +1,45 @@
-// /app/api/create-user/route.ts
-import { auth } from '@clerk/nextjs/server';
 import { db } from '@/lib/prisma';
-import { NextResponse } from 'next/server';
+import { getAuth } from '@clerk/nextjs/server';
+import { clerkClient } from '@clerk/clerk-sdk-node';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST() {
-  const { userId } =await auth();
+export const runtime = 'nodejs'; // ⬅️ عشان Prisma يشتغل
 
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+export async function POST(req: NextRequest) {
+  try {
+    const { userId } = getAuth(req); // ✅ مرر req هنا
 
-  const existingUser = await db.user.findUnique({
-    where: { clerkId: userId },
-  });
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
+    }
 
-  if (!existingUser) {
-    await db.user.create({
+    const existingUser = await db.user.findUnique({
+      where: { clerkId: userId },
+    });
+
+    if (existingUser) {
+      return NextResponse.json({ message: 'User already exists' }, { status: 200 });
+    }
+
+    const clerkUser = await clerkClient.users.getUser(userId);
+
+    const email = clerkUser?.emailAddresses?.[0]?.emailAddress || '';
+    const name = clerkUser?.firstName || clerkUser?.username || '';
+    const image = clerkUser?.imageUrl || '';
+
+    const newUser = await db.user.create({
       data: {
         clerkId: userId,
+        email,
+        name,
+        image,
         role: 'USER',
       },
     });
-  }
 
-  return NextResponse.json({ success: true });
+    return NextResponse.json({ user: newUser });
+  } catch (error) {
+    console.error('Error creating user:', error);
+    return NextResponse.json({ error: 'Something went wrong' }, { status: 500 });
+  }
 }

@@ -41,7 +41,6 @@ function AdminTabs() {
               href={tab.href}
               className={`
                 ${buttonVariants({ variant: isActiveTab(tab.href) ? 'default' : 'outline' })}
-                hover:!text-white
               `}
             >
               {tab.title}

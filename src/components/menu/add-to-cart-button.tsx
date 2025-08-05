@@ -188,7 +188,7 @@ function Extras({
       />
       <Label
         htmlFor={extra.id}
-        className='text-sm text-accent font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
+        className='text-sm text-gary-600 p-5 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
       >
         {extra.name} {formatCurrency(extra.price)}
       </Label>

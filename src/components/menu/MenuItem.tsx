@@ -20,7 +20,7 @@ function MenuItem({ item }: { item: ProductWithRelations }) {
           {formatCurrency(item.basePrice)}
         </strong>
       </div>
-      <p className="text-gray-500 text-sm line-clamp-3">{item.description}</p>
+      <p className="text-gray-700 text-sm line-clamp-3">{item.description}</p>
       <AddToCartButton item={item} />
     </li>
   );

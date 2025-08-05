@@ -2,24 +2,34 @@
 
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { useAuth, useClerk } from '@clerk/nextjs';
+import { useUser, useClerk } from '@clerk/nextjs';
 import { toast } from 'sonner';
 import { useEffect, useState } from 'react';
 
 export default function AuthControls() {
-  const { isSignedIn, getToken } = useAuth();
+  const { user, isSignedIn } = useUser();
   const { signOut } = useClerk();
   const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
+    const initUser = async () => {
+      try {
+        // ⛳️ تأكد من وجود المستخدم في DB
+        await fetch('/api/create-user', {
+          method: 'POST',
+        });
+
+        // ⏳ انتظر لحظة صغيرة (200-500ms) قبل طلب role
+        setTimeout(fetchRole, 100);
+      } catch (error) {
+        console.error('Error initializing user:', error);
+      }
+    };
+
     const fetchRole = async () => {
       try {
-        const token = await getToken(); // نضمن إن فيه جلسة فعلًا
-        if (!token) return;
-
         const res = await fetch('/api/get-role');
         if (!res.ok) throw new Error('Failed to fetch role');
-
         const data = await res.json();
         setRole(data.role);
       } catch (error) {
@@ -28,10 +38,10 @@ export default function AuthControls() {
       }
     };
 
-    if (isSignedIn) {
-      fetchRole();
+    if (isSignedIn && user?.id) {
+      initUser(); // ✅ أنشئ المستخدم ثم احصل على role
     }
-  }, [isSignedIn, getToken]);
+  }, [isSignedIn, user?.id]);
 
   const handleLogout = async () => {
     await signOut();
@@ -57,7 +67,9 @@ export default function AuthControls() {
       <>
         {role && (
           <Link href={role === 'ADMIN' ? '/admin' : '/profile'}>
-            <Button className="mr-2">{role === 'ADMIN' ? 'Admin' : 'Profile'}</Button>
+            <Button className="mr-2">
+              {role === 'ADMIN' ? 'Admin' : 'Profile'}
+            </Button>
           </Link>
         )}
         <Button variant="outline" onClick={handleLogout}>

@@ -51,7 +51,11 @@ export default function AdminPage() {
   return (
     <main className="max-w-xl mx-auto mt-10 p-6 border rounded-lg shadow-lg bg-white">
       <h1 className="text-3xl font-bold mb-6 text-center text-red-600">👑 Admin Dashboard</h1>
-      <ProfileForm defaultValues={defaultValues} userRole="ADMIN" />
+      <ProfileForm
+      defaultValues={defaultValues}
+      userRole="ADMIN"
+      userId={user?.id || ''}
+      />
     </main>
   );
 }
