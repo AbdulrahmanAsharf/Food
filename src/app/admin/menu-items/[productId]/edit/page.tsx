@@ -3,22 +3,20 @@ import { redirect } from "next/navigation";
 import { Menuform } from "../../_components/Form";
 import { getCategories } from "@/server/db/categories";
 
-export async function generateStaticParams(): Promise<{ productId: string }[]> {
+export async function generateStaticParams() {
   const products = await getProducts();
   return products.map((product) => ({
     productId: product.id,
   }));
 }
 
-type EditProductPageProps = {
-  params: {
-    productId: string;
-  };
-};
-
-const EditProductPage = async ({ params }: EditProductPageProps) => {
-  const { productId } = params;
-  const product = await getProduct(productId);
+// ✅ النوع مباشر بدل PageProps
+export default async function EditProductPage({
+  params,
+}: {
+  params: { productId: string };
+}) {
+  const product = await getProduct(params.productId);
   const categories = await getCategories();
 
   if (!product) {
@@ -34,6 +32,4 @@ const EditProductPage = async ({ params }: EditProductPageProps) => {
       </section>
     </main>
   );
-};
-
-export default EditProductPage;
+}
