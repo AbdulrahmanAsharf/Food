@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { Menuform } from "../../_components/Form";
 import { getCategories } from "@/server/db/categories";
 
-export async function generateStaticParams() {
+export async function generateStaticParams(): Promise<{ productId: string }[]> {
   const products = await getProducts();
   return products.map((product) => ({
     productId: product.id,
