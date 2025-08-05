@@ -1,20 +1,22 @@
 import { getProduct, getProducts } from "@/server/db/products";
 import { redirect } from "next/navigation";
-import  { Menuform } from "../../_components/Form";
+import { Menuform } from "../../_components/Form";
 import { getCategories } from "@/server/db/categories";
 
 export async function generateStaticParams() {
   const products = await getProducts();
-
   return products.map((product) => ({ productId: product.id }));
 }
 
-interface Props {
-  params: { productId: string };
-}
+type Props = {
+  params: {
+    productId: string;
+  };
+};
 
-async function EditProductPage({ params }: Props) {
-  const { productId } = params; // ✅ هكذا نحصل على الـ id من الديناميكية
+// ✅ هنا التعديل الحقيقي في نوع الدالة
+export default async function EditProductPage({ params }: Props) {
+  const { productId } = params;
   const product = await getProduct(productId);
   const categories = await getCategories();
 
@@ -32,5 +34,3 @@ async function EditProductPage({ params }: Props) {
     </main>
   );
 }
-
-export default EditProductPage;
