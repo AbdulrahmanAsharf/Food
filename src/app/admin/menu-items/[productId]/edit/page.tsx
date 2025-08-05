@@ -8,14 +8,11 @@ export async function generateStaticParams() {
   return products.map((product) => ({ productId: product.id }));
 }
 
-type Props = {
-  params: {
-    productId: string;
-  };
+type EditProductPageProps = {
+  params: { productId: string };
 };
 
-
-export default async function EditProductPage({ params }: Props) {
+export default async function EditProductPage({ params }: EditProductPageProps) {
   const { productId } = params;
   const product = await getProduct(productId);
   const categories = await getCategories();
