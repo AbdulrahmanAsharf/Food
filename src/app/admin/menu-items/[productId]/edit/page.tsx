@@ -14,7 +14,7 @@ type Props = {
   };
 };
 
-// ✅ هنا التعديل الحقيقي في نوع الدالة
+
 export default async function EditProductPage({ params }: Props) {
   const { productId } = params;
   const product = await getProduct(productId);

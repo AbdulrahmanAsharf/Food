@@ -12,7 +12,7 @@ interface Props {
 export default async function EditUserPage({ params }: Props) {
   const { userId } = params;
 
-  const user = await getUser(userId); // ✅ اجلب بيانات المستخدم من قاعدة البيانات
+  const user = await getUser(userId); 
 
   if (!user) return notFound();
 

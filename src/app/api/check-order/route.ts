@@ -25,7 +25,7 @@ export async function GET() {
       include: { products: true },
     })
 
-console.log("📦 All recent orders:", order)
+    console.log("📦 All recent orders:", order)
     if (!order) {
       return new NextResponse('Order not found', { status: 404 })
     }
