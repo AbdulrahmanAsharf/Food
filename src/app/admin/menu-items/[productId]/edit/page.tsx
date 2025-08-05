@@ -5,29 +5,33 @@ import { getCategories } from "@/server/db/categories";
 
 export async function generateStaticParams() {
   const products = await getProducts();
-  return products.map((product) => ({ productId: product.id }));
+  return products.map((product) => ({
+    productId: product.id,
+  }));
 }
 
-type EditProductPageProps = {
+// ✅ عدّل التوقيع هنا
+const EditProductPage = async ({
+  params,
+}: {
   params: { productId: string };
-};
-
-export default async function EditProductPage({ params }: EditProductPageProps) {
-  const { productId } = params;
-  const product = await getProduct(productId);
+}) => {
+  const product = await getProduct(params.productId);
   const categories = await getCategories();
 
   if (!product) {
-    redirect(`/admin/menu-items`);
+    redirect("/admin/menu-items");
   }
 
   return (
     <main>
       <section>
         <div className="container">
-          <Menuform categories={categories} product={product} />
+          <Menuform product={product} categories={categories} />
         </div>
       </section>
     </main>
   );
-}
+};
+
+export default EditProductPage;
