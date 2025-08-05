@@ -10,13 +10,15 @@ export async function generateStaticParams() {
   }));
 }
 
-// ✅ عدّل التوقيع هنا
-const EditProductPage = async ({
-  params,
-}: {
-  params: { productId: string };
-}) => {
-  const product = await getProduct(params.productId);
+type EditProductPageProps = {
+  params: {
+    productId: string;
+  };
+};
+
+const EditProductPage = async ({ params }: EditProductPageProps) => {
+  const { productId } = params;
+  const product = await getProduct(productId);
   const categories = await getCategories();
 
   if (!product) {
