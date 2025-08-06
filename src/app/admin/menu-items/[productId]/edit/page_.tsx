@@ -1,21 +1,24 @@
+//app/admin/menu-items/[productId]/edit/page_.tsx
+
 import { getProduct, getProducts } from "@/server/db/products";
 import { redirect } from "next/navigation";
 import { Menuform } from "../../_components/Form";
 import { getCategories } from "@/server/db/categories";
 
-export async function generateStaticParams() {
+export async function generateStaticParams(): Promise<{ productId: string }[]> {
   const products = await getProducts();
   return products.map((product) => ({
-    productId: product.id,
+    productId: String(product.id),
   }));
 }
 
-// ✅ النوع مباشر بدل PageProps
-export default async function EditProductPage({
-  params,
-}: {
-  params: { productId: string };
-}) {
+type PageProps = {
+  params: {
+    productId: string;
+  };
+};
+
+export default async function EditProductPage({ params }: PageProps) {
   const product = await getProduct(params.productId);
   const categories = await getCategories();
 

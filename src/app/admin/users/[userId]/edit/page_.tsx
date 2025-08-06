@@ -1,18 +1,27 @@
+// app/admin/users/[userId]/edit/page_.tsx
+
 import { ProfileForm } from '@/app/profile/ProfileForm';
-import {getUser} from '@/server/db/users'; // تعمل دالة تجيب بيانات المستخدم من DB
+import { getUser, getUsers } from '@/server/db/users';
 import { notFound } from 'next/navigation';
 import { ProfileFormData } from '@/validations/profile';
 
-interface Props {
+export async function generateStaticParams() {
+  const users = await getUsers();
+  return users.map((user) => ({
+    userId: user.id,
+  }));
+}
+
+type PageProps = {
   params: {
     userId: string;
   };
-}
+};
 
-export default async function EditUserPage({ params }: Props) {
+export default async function EditUserPage({ params }: PageProps) {
   const { userId } = params;
 
-  const user = await getUser(userId); 
+  const user = await getUser(userId);
 
   if (!user) return notFound();
 
@@ -23,7 +32,7 @@ export default async function EditUserPage({ params }: Props) {
     postalCode: user.postalCode || '',
     city: user.city || '',
     country: user.country || '',
-    role: user.role, // 'ADMIN' | 'USER'
+    role: user.role,
   };
 
   return (
