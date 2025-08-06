@@ -7,6 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { deliveryFee, getSubTotal, getTotalAmount } from '@/lib/cart';
 import { formatCurrency } from '@/lib/formatters';
 import { useCartStore } from '@/store/cart-store';
+import { useState } from 'react';
+
 
 type UserProps = {
   user: {
@@ -25,11 +27,11 @@ type UserProps = {
 
 
 function CheckoutForm({ user }: UserProps) {
+  const [isLoading, setIsLoading] = useState(false);
   const cart = useCartStore((s) => s.items);
   const totalAmount = getTotalAmount(cart);
-  console.log( user); // ✅ دي مهمة جداً
+  console.log( user); 
   const subTotal = getSubTotal(cart);
-   // ✅ تحقق من تسجيل الدخول
   if (!user.id) {
     return (
       <div className="bg-red-100 text-red-700 p-4 rounded-md">
@@ -140,36 +142,42 @@ function CheckoutForm({ user }: UserProps) {
             </div>
 
            <Button
-  type="button"
-  className="h-10"
-  onClick={async () => {
-    const res = await fetch("/api/create-checkout-session", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    cartItems: cart.map(item => ({
-      id: item.id,
-      name: item.name,
-      price: item.basePrice,
-      quantity: item.quantity,
-    })),
-    user: user, // ✅ أضف user هنا
-    subTotal,
-    deliveryFee,
-    totalPrice: subTotal + deliveryFee,
-  }),
-});
+            type="button"
+            className="h-10"
+             disabled={isLoading}
+              onClick={async () => {
+               setIsLoading(true); 
+               try {
+                  const res = await fetch("/api/create-checkout-session", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      cartItems: cart.map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        price: item.basePrice,
+                        quantity: item.quantity,
+                      })),
+                      user,
+                      subTotal,
+                      deliveryFee,
+                      totalPrice: subTotal + deliveryFee,
+                    }),
+                  });
 
-
-    const data = await res.json();
-    if (data.url) {
-      window.location.href = data.url;
-    }
-  }}
->
-  Pay {formatCurrency(totalAmount)}
-</Button>
-
+                  const data = await res.json();
+                    if (data.url) {
+                      window.location.href = data.url;
+                    }
+                  } catch (error) {
+                    console.error("Checkout error:", error);
+                  } finally {
+                   setIsLoading(false); 
+                  }
+              }}
+            >
+                {isLoading ? "جارٍ المعالجة..." : `Pay ${formatCurrency(totalAmount)}`}
+            </Button>
           </div>
         </form>
       </div>
