@@ -12,14 +12,13 @@ export async function generateStaticParams() {
   }));
 }
 
-type PageProps = {
-  params: {
-    userId: string;
-  };
-};
+interface PageProps {
+  params: Promise<{ userId: string }>;
+}
+
 
 export default async function EditUserPage({ params }: PageProps) {
-  const { userId } = params;
+  const { userId } =await params;
 
   const user = await getUser(userId);
 

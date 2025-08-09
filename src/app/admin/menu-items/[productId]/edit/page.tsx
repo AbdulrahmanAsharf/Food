@@ -2,6 +2,7 @@ import { getProduct, getProducts } from "@/server/db/products";
 
 import { Menuform } from "../../_components/Form";
 import { getCategories } from "@/server/db/categories";
+import { redirect } from "next/navigation";
 
 export async function generateStaticParams(): Promise<{ productId: string }[]> {
   const products = await getProducts();
@@ -10,17 +11,18 @@ export async function generateStaticParams(): Promise<{ productId: string }[]> {
   }));
 }
 
-type PageProps = {
-  params: {
-    productId: string;
-  };
-};
+interface PageProps {
+  params: Promise<{ productId: string }>;
+}
 
 export default async function EditProductPage({ params }: PageProps) {
-  const product = await getProduct(params.productId);
+  const { productId } = await params;
+  const product = await getProduct(productId);
   const categories = await getCategories();
 
-
+  if (!product) {
+    redirect("/admin/menu-item");
+  }
   return (
   <main>
     <section>
