@@ -11,15 +11,12 @@ export async function generateStaticParams() {
     userId: user.id,
   }));
 }
-
 interface PageProps {
-  params: Promise<{ userId: string }>;
+  params: { userId: string };
 }
 
-
 export default async function EditUserPage({ params }: PageProps) {
-  const { userId } =await params;
-
+  const { userId } = params;
   const user = await getUser(userId);
 
   if (!user) return notFound();
@@ -36,7 +33,8 @@ export default async function EditUserPage({ params }: PageProps) {
 
   return (
     <main className="max-w-xl mx-auto my-10 p-6 border rounded-lg shadow-lg bg-white">
-      <ProfileForm defaultValues={defaultValues} userRole="ADMIN" userId={user.id} />
+      {/* هنا غير userId لـ user.clerkId */}
+      <ProfileForm defaultValues={defaultValues} userRole="ADMIN" userId={user.clerkId} />
     </main>
   );
 }
