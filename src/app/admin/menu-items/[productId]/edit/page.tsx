@@ -1,7 +1,7 @@
-//app/admin/menu-items/[productId]/edit/page_.tsx
+
 
 import { getProduct, getProducts } from "@/server/db/products";
-import { redirect } from "next/navigation";
+
 import { Menuform } from "../../_components/Form";
 import { getCategories } from "@/server/db/categories";
 
@@ -23,7 +23,14 @@ export default async function EditProductPage({ params }: PageProps) {
   const categories = await getCategories();
 
   if (!product) {
-    redirect("/admin/menu-items");
+    return (
+      <main>
+        <section className="p-6 text-center">
+          <h1 className="text-2xl font-bold">❌ المنتج غير موجود</h1>
+          <p className="mt-2">تأكد أن الرابط صحيح أو أن المنتج موجود في قاعدة البيانات.</p>
+        </section>
+      </main>
+    );
   }
 
   return (
