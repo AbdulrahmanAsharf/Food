@@ -1,5 +1,3 @@
-
-
 import { getProduct, getProducts } from "@/server/db/products";
 
 import { Menuform } from "../../_components/Form";
