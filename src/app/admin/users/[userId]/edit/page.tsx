@@ -12,11 +12,11 @@ export async function generateStaticParams() {
   }));
 }
 interface PageProps {
-  params: { userId: string };
+  params: Promise<{ userId: string }>;
 }
 
 export default async function EditUserPage({ params }: PageProps) {
-  const { userId } = params;
+  const { userId } =await params;
   const user = await getUser(userId);
 
   if (!user) return notFound();
